@@ -2,7 +2,7 @@
 
 double getRandomY()
 {
-    return ((double)rand() / (RAND_MAX) * 2 - 1);
+    return ((float)rand() / (RAND_MAX) * 2 - 1);
 }
 
 int main()
