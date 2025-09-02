@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 
-double getRandomY()
+float getRandomY()
 {
     return ((float)rand() / (RAND_MAX) * 2 - 1);
 }
@@ -26,18 +26,20 @@ int main()
     sf::Font font("OpenSans.ttf");
 
     float moveX = 1, moveY = getRandomY();
-    float speed = 120;
+    float speed = 0;
 	int score1 = 0, score2 = 0;
     bool ui = 1;
 
     while (window.isOpen())
     {
-
         while (const std::optional event = window.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
+
+        sf::Time deltaTime = clock.restart();
+        float dT = deltaTime.asSeconds();
 
         if (ui == 1)
         {
@@ -52,6 +54,8 @@ int main()
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter))
             {
                 ui = 0;
+                printf("Hello?");
+                speed = 120;
 			}
 
             window.clear();
@@ -59,11 +63,8 @@ int main()
             window.display();
         }
 
-        else
+        if (ui == 0 && score1 < 5 && score2 < 5)
         {
-            sf::Time deltaTime = clock.restart();
-            float dT = deltaTime.asSeconds();
-
             sf::Vector2f lPosition = left.getPosition();
             sf::Vector2f rPosition = right.getPosition();
 
@@ -144,6 +145,21 @@ int main()
 			window.draw(score1Text);
 			window.draw(score2Text);
             window.display();
+        }
+
+        if (score1 == 5)
+        {
+			sf::Text text(font);
+			text.setString("Player 1 Wins!\nPress R to Restart!");
+			text.setCharacterSize(30);
+			text.setFillColor(sf::Color::Green);
+			text.setPosition({ 100, 200 });
+			text.setStyle(sf::Text::Bold);
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) { score1 = 0; score2 = 0; ui = 1; }
+
+			window.clear();
+			window.draw(text);
+			window.display();
         }
     }
 }
