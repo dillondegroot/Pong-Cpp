@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include "Ball.h"
+#include "Paddle.h"
 
 float getRandomY()
 {
@@ -11,23 +13,18 @@ int main()
     sf::RenderWindow window(sf::VideoMode({ 500, 500 }), "Pong SFML");
     sf::Clock clock;
 
-	sf::RectangleShape left({ 15, 80 });
-	left.setPosition({ 20, 210 });
-    left.setFillColor(sf::Color::Yellow);
+	Paddle left ({ 15, 80 }, { 20, 210 }, sf::Color::Yellow);
 
-	sf::RectangleShape right({ 15, 80 });
-	right.setPosition({ 465, 210 });
-	right.setFillColor(sf::Color(95, 20, 150));
+	Paddle right ({ 15, 80 }, { 465, 210 }, sf::Color(95, 20, 150));
 
-	sf::CircleShape ball(10.f);
-	ball.setPosition({ 250, 250 });
-	ball.setFillColor(sf::Color::White);
-    
+    Ball ball(10.f, { 250, 250 }, sf::Color::White);
+
     sf::Font font("OpenSans.ttf");
 
     float moveX = 1, moveY = getRandomY();
     float speed = 0;
 	int score1 = 0, score2 = 0;
+    int* score1Ptr = &score1, *score2Ptr = &score2;
     bool ui = 1;
 
     while (window.isOpen())
@@ -54,7 +51,6 @@ int main()
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter))
             {
                 ui = 0;
-                printf("Hello?");
                 speed = 120;
 			}
 
@@ -63,7 +59,7 @@ int main()
             window.display();
         }
 
-        if (ui == 0 && score1 < 5 && score2 < 5)
+        else if (ui == 0 && *score1Ptr < 5 && *score2Ptr < 5)
         {
             sf::Vector2f lPosition = left.getPosition();
             sf::Vector2f rPosition = right.getPosition();
@@ -77,7 +73,7 @@ int main()
 			score1Text.setPosition({ 50, 20 });
 			score1Text.setStyle(sf::Text::Bold);
 
-			score2Text.setString(std::to_string(score2));
+			score2Text.setString(std::to_string(*score2Ptr));
 			score2Text.setCharacterSize(35);
 			score2Text.setFillColor(sf::Color::White);
 			score2Text.setPosition({ 425, 20 });
@@ -97,6 +93,7 @@ int main()
             {
                 if (lPosition.y > 0) left.setPosition(lPosition + sf::Vector2f(0, -200.f * dT));
             }
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
             {
                 if (lPosition.y < 420) left.setPosition(lPosition + sf::Vector2f(0, 200.f * dT));
@@ -109,7 +106,7 @@ int main()
 
             if (ball.getPosition().y < right.getPosition().y + 85 && ball.getPosition().y > right.getPosition().y - 5)
             {
-                if (ball.getPosition().x > right.getPosition().x - 20 && ball.getPosition().x < right.getPosition().x - 15) moveX *= -1;
+				if (ball.getPosition().x > right.getPosition().x - 20 && ball.getPosition().x < right.getPosition().x - 15) moveX *= -1;
             }
 
             if (ball.getPosition().y < left.getPosition().y + 85 && ball.getPosition().y > left.getPosition().y - 5)
@@ -139,15 +136,15 @@ int main()
             speed += 0.00001f;
 
             window.clear();
-            window.draw(left);
-            window.draw(right);
-            window.draw(ball);
+			left.draw(window);
+			right.draw(window);
+            ball.draw(window);
 			window.draw(score1Text);
 			window.draw(score2Text);
             window.display();
         }
 
-        if (score1 == 5)
+        else if (*score1Ptr == 5)
         {
 			sf::Text text(font);
 			text.setString("Player 1 Wins!\nPress R to Restart!");
@@ -155,11 +152,26 @@ int main()
 			text.setFillColor(sf::Color::Green);
 			text.setPosition({ 100, 200 });
 			text.setStyle(sf::Text::Bold);
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) { score1 = 0; score2 = 0; ui = 1; }
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) { *score1Ptr = 0; *score2Ptr = 0; ui = 1; }
 
 			window.clear();
 			window.draw(text);
 			window.display();
         }
+
+        else if (*score2Ptr == 5)
+        {
+            sf::Text text(font);
+            text.setString("Player 2 Wins!\nPress R to Restart!");
+            text.setCharacterSize(30);
+            text.setFillColor(sf::Color::Green);
+            text.setPosition({ 100, 200 });
+            text.setStyle(sf::Text::Bold);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) { *score1Ptr = 0; *score2Ptr = 0; ui = 1; }
+
+            window.clear();
+            window.draw(text);
+            window.display();
+            }
     }
 }
