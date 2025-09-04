@@ -26,6 +26,7 @@ int main()
 	int score1 = 0, score2 = 0;
     int* score1Ptr = &score1, *score2Ptr = &score2;
     bool ui = 1;
+    bool paused = 0;
 
     while (window.isOpen())
     {
@@ -59,8 +60,10 @@ int main()
             window.display();
         }
 
-        else if (ui == 0 && *score1Ptr < 5 && *score2Ptr < 5)
+        else if (ui == 0 && paused == 0 && *score1Ptr < 5 && *score2Ptr < 5)
         {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) paused = 1;
+
             sf::Vector2f lPosition = left.getPosition();
             sf::Vector2f rPosition = right.getPosition();
 
@@ -142,6 +145,24 @@ int main()
 			window.draw(score1Text);
 			window.draw(score2Text);
             window.display();
+        }
+
+        else if (paused == 1)
+        {
+			sf::Text text(font);
+
+			text.setString("Game Paused\nPress Backspace to Resume\nPress Q to quit");
+			text.setCharacterSize(24);
+			text.setFillColor(sf::Color::White);
+            text.setPosition({ 50, 200 });
+            text.setStyle(sf::Text::Bold);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Backspace)) paused = 0;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) window.close();
+
+			window.clear();
+            window.draw(text);
+			window.display();
         }
 
         else if (*score1Ptr == 5)
